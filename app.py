@@ -35,7 +35,11 @@ def index():
     posts = conn.execute('SELECT * FROM posts').fetchall()
     jobs = conn.execute('SELECT * FROM jobs').fetchall()
     conn.close()
-    return render_template('index.html', posts=posts, jobs=jobs)
+
+    active_jobs = [job for job in jobs if job['applied'] != 'denied']
+    denied_jobs = [job for job in jobs if job['applied'] == 'denied']
+
+    return render_template('index.html', posts=posts, jobs=jobs, active_jobs=active_jobs, denied_jobs=denied_jobs)
 
 @app.route('/update_job', methods=['POST'])
 def update_job():
