@@ -11,63 +11,80 @@
                 <th>Company</th>
                 <th>Remote?</th>
                 <th>Application Status</th>
-                <th>Application Date</th>
-                <th>Job Link</th>
                 <th>Comments</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {% if jobs %}
-                {% set sorted_jobs = jobs | sort(attribute='applied', reverse=false) %}
-                {% for job in sorted_jobs %}
-                    <tr 
-                        {% if job['applied'] == 'applied' %}
-                            class="table-info"  
-                        {% elif job['applied'] == 'denied' %}
-                            class="table-danger"  
-                        {% elif job['applied'] == 'interviewing' %}
-                            class="table-success"
-                        {% endif %}
-                    >
-                        <td>
-                            <a href="{{ url_for('job', job_id=job['id'])}}">{{ job['id'] }}</a>
-                        </td>
-                        <td>{{ job['job_title'] }}</td>
-                        <td>{{ job['company'] }}</td>
-                        <td>{{ job['remote_q'] }}</td>
-                        <td>{{ job['applied'] }}</td>
-                        <td>{{ job['applied_date'] if job['applied_date'] else 'N/A' }}</td>
-                        <td>
-                            {% if job['link'] %}
-                                <a href="{{ job['link'] }}" target="_blank">View Job</a>
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </td>
-                        
-                        <td>
-                            {% if job['comments'] %}
-                                <span class="comments-text" data-toggle="tooltip" data-placement="top" title="{{ job['comments'] }}">
-                                    {{ job['comments'][:50] }}{% if job['comments']|length > 50 %}...{% endif %}
-                                </span>
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </td>
-                    </tr>
+                {% for job in jobs %}
+                <tr 
+                    {% if job['applied'] == 'applied' %}
+                        class="table-info"
+                    {% elif job['applied'] == 'denied' %}
+                        class="table-danger"
+                    {% elif job['applied'] == 'interviewing' %}
+                        class="table-success"
+                    {% endif %}
+                    data-job-id="{{ job['id'] }}"
+                >
+                    <td>
+                        <a href="{{ url_for('job', job_id=job['id']) }}">{{ job['id'] }}</a>
+                    </td>
+                    <td>{{ job['job_title'] }}</td>
+                    <td>{{ job['company'] }}</td>
+                    <td>{{ job['remote_q'] }}</td>
+                    <td>
+                        <select class="form-control update-status">
+                            <option value="interested" {% if job['applied'] == 'interested' %}selected{% endif %}>Interested</option>
+                            <option value="applied" {% if job['applied'] == 'applied' %}selected{% endif %}>Applied</option>
+                            <option value="interviewing" {% if job['applied'] == 'interviewing' %}selected{% endif %}>Interviewing</option>
+                            <option value="hired" {% if job['applied'] == 'hired' %}selected{% endif %}>Hired</option>
+                            <option value="denied" {% if job['applied'] == 'denied' %}selected{% endif %}>Denied</option>
+                        </select>
+                    </td>
+                    <td>
+                        <textarea class="form-control update-comments">{{ job['comments'] }}</textarea>
+                    </td>
+                    <td>
+                        <button class="btn btn-success save-job">Update</button>
+                    </td>
+                </tr>
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td colspan="8" class="text-center">No jobs found.</td>
+                    <td colspan="7" class="text-center">No jobs found.</td>
                 </tr>
             {% endif %}
         </tbody>
     </table>
 
-
     <script>
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".save-job").forEach(button => {
+                button.addEventListener("click", function() {
+                    let row = this.closest("tr");
+                    let jobId = row.getAttribute("data-job-id");
+                    let newStatus = row.querySelector(".update-status").value;
+                    let newComments = row.querySelector(".update-comments").value;
+
+                    fetch("/update_job", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ job_id: jobId, applied: newStatus, comments: newComments })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Job updated successfully!");
+                            location.reload();  // Reload page to reflect changes
+                        } else {
+                            alert("Failed to update job.");
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+                });
+            });
         });
     </script>
 

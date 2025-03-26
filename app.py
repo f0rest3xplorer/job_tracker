@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, flash, redirect
+from flask import Flask, render_template, request, url_for, flash, redirect, jsonify
 import sqlite3
 from werkzeug.exceptions import abort
 
@@ -36,6 +36,25 @@ def index():
     jobs = conn.execute('SELECT * FROM jobs').fetchall()
     conn.close()
     return render_template('index.html', posts=posts, jobs=jobs)
+
+@app.route('/update_job', methods=['POST'])
+def update_job():
+    data = request.json
+    job_id = data.get("job_id")
+    new_status = data.get("applied")
+    new_comments = data.get("comments")
+
+    if not job_id:
+        return jsonify({"Success": False, "error": "Missing job ID"}), 400
+    
+    try:
+        conn = get_db_connection()
+        conn.execute("UPDATE jobs SET applied = ?, comments = ? WHERE id = ?", (new_status, new_comments, job_id))
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"Success": False, "error": str(e)}), 500
 
 @app.route('/post/<int:post_id>')
 def post(post_id):
