@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Welcome to Job Tracker, a place to track your job applications! {% endblock %}</h1>
+
+    <table class="table table-striped table-bordered mt-4">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Job Title</th>
+                <th>Company</th>
+                <th>Remote?</th>
+                <th>Application Status</th>
+                <th>Application Date</th>
+                <th>Job Link</th>
+                <th>Comments</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if jobs %}
+                {% set sorted_jobs = jobs | sort(attribute='applied', reverse=false) %}
+                {% for job in sorted_jobs %}
+                    <tr 
+                        {% if job['applied'] == 'applied' %}
+                            class="table-info"  
+                        {% elif job['applied'] == 'denied' %}
+                            class="table-danger"  
+                        {% elif job['applied'] == 'interviewing' %}
+                            class="table-success"
+                        {% endif %}
+                    >
+                        <td>
+                            <a href="{{ url_for('job', job_id=job['id'])}}">{{ job['id'] }}</a>
+                        </td>
+                        <td>{{ job['job_title'] }}</td>
+                        <td>{{ job['company'] }}</td>
+                        <td>{{ job['remote_q'] }}</td>
+                        <td>{{ job['applied'] }}</td>
+                        <td>{{ job['applied_date'] if job['applied_date'] else 'N/A' }}</td>
+                        <td>
+                            {% if job['link'] %}
+                                <a href="{{ job['link'] }}" target="_blank">View Job</a>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        
+                        <td>
+                            {% if job['comments'] %}
+                                <span class="comments-text" data-toggle="tooltip" data-placement="top" title="{{ job['comments'] }}">
+                                    {{ job['comments'][:50] }}{% if job['comments']|length > 50 %}...{% endif %}
+                                </span>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="8" class="text-center">No jobs found.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        });
+    </script>
+
+{% endblock %}

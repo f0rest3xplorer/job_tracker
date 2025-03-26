@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} Add a new job application to track! {% endblock %}</h1>
+
+<form method="POST" class="mt-4">
+    <div class="form-group">
+        <label for="job_title"><strong>Job Title</strong></label>
+        <input type="text" id="job_title" name="job_title"
+               class="form-control" placeholder="Enter job title"
+               value="{{ request.form['job_title'] if request.form['job_title'] else '' }}">
+    </div>
+
+    <div class="form-group">
+        <label for="company"><strong>Company Name</strong></label>
+        <input type="text" id="company" name="company"
+               class="form-control" placeholder="Enter company name"
+               value="{{ request.form['company'] if request.form['company'] else '' }}">
+    </div>
+
+    <div class="form-group">
+        <label for="remote_q"><strong>Remote?</strong></label>
+        <select id="remote_q" name="remote_q" class="form-control">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+            <option value="hybrid">Hybrid</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="applied"><strong>Application Status</strong></label>
+        <select id="applied" name="applied" class="form-control">
+            <option value="interested">Interested</option>
+            <option value="applied">Applied</option>
+            <option value="interviewing">Interviewing</option>
+            <option value="hired">Hired</option>
+            <option value="denied">Denied</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="applied_date"><strong>Application Date</strong></label>
+        <input type="date" id="applied_date" name="applied_date"
+               class="form-control"
+               value="{{ request.form['applied_date'] if request.form['applied_date'] else '' }}">
+    </div>
+
+    <div class="form-group">
+        <label for="link"><strong>Job Application Link</strong></label>
+        <input type="url" id="link" name="link"
+               class="form-control" placeholder="https://example.com"
+               value="{{ request.form['link'] if request.form['link'] else '' }}">
+    </div>
+
+    <div class="form-group">
+        <label for="comments"><strong>Comments</strong></label>
+        <textarea id="comments" name="comments" class="form-control" rows="4" placeholder="Enter any notes or comments">{{ request.form['comments'] if request.form['comments'] else '' }}</textarea>
+    </div>    
+
+    <button type="submit" class="btn btn-primary btn-block">Submit</button>
+</form>
+
+{% endblock %}

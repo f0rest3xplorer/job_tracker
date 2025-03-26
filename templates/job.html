@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>{% block title %} {{ job['job_title'] }} {% endblock %}</h2>
+    
+    <span class="badge badge-primary">{{ job['created'] }}</span>
+    
+    <p><strong>Company:</strong> {{ job['company'] }}</p>
+    
+    <p><strong>Remote:</strong> {{ job['remote_q'] }}</p>
+    
+    <p><strong>Application Status:</strong> {{ job['applied'] }}</p>
+    
+    <p><strong>Application Date:</strong> {{ job['applied_date'] if job['applied_date'] else 'N/A' }}</p>
+    
+    <p><strong>Job Link:</strong> 
+        {% if job['link'] %}
+            <a href="{{ job['link'] }}" target="_blank">View Job</a>
+        {% else %}
+            N/A
+        {% endif %}
+    </p>
+    
+    <p><strong>Comments:</strong> 
+        {% if job['comments'] %}
+            {{ job['comments'] }}
+        {% else %}
+            N/A
+        {% endif %}
+    </p>
+
+{% endblock %}
